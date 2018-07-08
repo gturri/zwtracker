@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>ZW Tracker</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script src="Chart.bundle.min.js"></script>
+</head>
+<body>
+  <div style="width:75%">
+    <canvas id="graph"></canvas>
+  </div>
+  <table id="data_table">
+    <tr><th>Début période</th><th>Fin période</th><th>Masse</th></tr>
+  </table>
+  <div>
+    <button id="addLine">Ajouter une ligne</button>
+    <button id="updateGraph">Mettre à jour le graph</button>
+  </div>
+
+  <script>
+    function createCellWithDateInput(){
+        var input = document.createElement("input");
+        input.setAttribute("type", "date");
+        return encloseInputInCell(input);
+    }
+
+    function createCellWithNumberInput(){
+        var input = document.createElement("input");
+        input.setAttribute("type", "number");
+        input.setAttribute("placeholder", "1.2kg");
+        input.setAttribute("step", "0.1");
+        return encloseInputInCell(input);
+    }
+
+    function encloseInputInCell(input){
+        var cell = document.createElement("td");
+        cell.appendChild(input);
+        return cell;
+    }
+
+    function addLine(){
+      var table = document.getElementById("data_table");
+      //var rows = table.getElementsByTagName("tr");
+      //var lastRow = rows[rows.len-1];
+      var newRow = table.insertRow(-1);
+      newRow.appendChild(createCellWithDateInput());
+      newRow.appendChild(createCellWithDateInput());
+      newRow.appendChild(createCellWithNumberInput());
+    }
+
+    addLine(); // Start with one line
+
+    document.getElementById('addLine').addEventListener('click', addLine);
+    document.getElementById('updateGraph').addEventListener('click', function(){
+          var ctx = document.getElementById('graph').getContext('2d');
+          var graph = new Chart(ctx, {
+
+              })
+          //TODO
+        });
+  </script>
+
+</body>
+</html>
