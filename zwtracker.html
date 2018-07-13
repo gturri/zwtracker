@@ -17,18 +17,39 @@
   </div>
 
   <script>
-    function createCellWithDateInput(){
-        var input = document.createElement("input");
-        input.setAttribute("type", "date");
-        return encloseInputInCell(input);
+    function createCellWithEndingDate(idxRows){
+        return createCellWithInputDate(true, idxRows);
     }
 
-    function createCellWithNumberInput(){
+    function createCellWithStartingDate(){
+        return createCellWithInputDate(false);
+    }
+
+   function createCellWithInputDate(isEndingDate, idxRows){
+        var input = document.createElement("input");
+        if (isEndingDate) {
+            input.setAttribute("id", "ending_date_" + idxRows);
+            input.addEventListener('change', function(){
+                onUpdateEndingDate(idxRows);
+            });
+        }
+        input.setAttribute("type", "date");
+        return encloseInputInCell(input);
+   }
+
+    function createWeightCell(idxRows){
         var input = document.createElement("input");
         input.setAttribute("type", "number");
         input.setAttribute("placeholder", "1.2kg");
         input.setAttribute("step", "0.1");
+        input.setAttribute("id", "weight_" + idxRows);
         return encloseInputInCell(input);
+    }
+
+    function createEmptyCell(idxRows){
+        var cell = document.createElement("td");
+        cell.setAttribute("id", "empty_" + idxRows);
+        return cell;
     }
 
     function encloseInputInCell(input){
@@ -39,12 +60,29 @@
 
     function addLine(){
       var table = document.getElementById("data_table");
-      //var rows = table.getElementsByTagName("tr");
-      //var lastRow = rows[rows.len-1];
+      var nbRows = table.getElementsByTagName("tr").length;
       var newRow = table.insertRow(-1);
-      newRow.appendChild(createCellWithDateInput());
-      newRow.appendChild(createCellWithDateInput());
-      newRow.appendChild(createCellWithNumberInput());
+      if (nbRows == 1){ //only the first row has the "starting date" cell: for the other it matches the "ending date" of the previous row
+        newRow.appendChild(createCellWithStartingDate());
+      } else {
+        newRow.appendChild(createEmptyCell(nbRows));
+      }
+      newRow.appendChild(createCellWithEndingDate(nbRows));
+      newRow.appendChild(createWeightCell(nbRows));
+
+      // if a line is added after the previous ending date has been selected
+      // then this new cell should be filled
+      if (nbRows > 1){
+          onUpdateEndingDate(nbRows-1);
+      }
+    }
+
+    function onUpdateEndingDate(idxRowUpdated){
+       var value = document.getElementById("ending_date_" + idxRowUpdated).value;
+       var nextCell = document.getElementById("empty_" + (idxRowUpdated + 1));
+       if (nextCell !== null){
+          nextCell.innerHTML = value;
+       }
     }
 
     addLine(); // Start with one line
