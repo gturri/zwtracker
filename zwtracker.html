@@ -107,7 +107,7 @@
       var nbRows = table.getElementsByTagName("tr").length;
       var weights = [];
       for(var idx = 1 /*starts at 1 since rows 0 is the headers*/ ; idx < nbRows ; idx++){
-         weights.push(document.getElementById("weight_" + idx).value);
+         weights.push(document.getElementById("weight_" + idx).valueAsNumber);
       }
       return weights;
     }
@@ -121,6 +121,42 @@
          dates.push(document.getElementById("ending_date_" + idx).value);
       }
       return dates;
+    }
+
+    function getData(){
+      var weights = getWeights();
+      var datesOffsets = datesToDayOffset(getDates());
+      var data = [];
+      for(var idx=0 ; idx < datesOffsets.length - 1 ; idx++ ){
+        var start = datesOffsets[idx];
+        var end = datesOffsets[idx+1];
+        if ( data.length <= start ){
+          data[start] = 0.0;
+        }
+        if ( start == end ){
+          data[start] += weights[idx];
+        } else {
+          var weightPerTimeUnit = weights[idx] / (end - start);
+          data[start] += weightPerTimeUnit; // `start` is special because it may be already set (if the previous time slot lasted 0 unit of time
+          for (var timeUnit= start+1 ; timeUnit < end ; timeUnit++){
+            data.push(weightPerTimeUnit);
+          }
+        }
+      }
+      return data;
+    }
+
+    function datesToDayOffset(dates){
+      var startingDate = new Date(dates[0]);
+      var offsets = [0];
+      for(var idx=1 ; idx < dates.length ; idx++){
+        var offset = (new Date(dates[idx]) - startingDate) / (24 * 3600 * 1000);
+        // TODO: make sure it's always an int.
+        // (it should work even without since input only accept whole days (without hours)
+        //  but it would still be cleaner)
+        offsets.push(offset);
+      }
+      return offsets;
     }
 
     document.getElementById('addLine').addEventListener('click', addLine);
