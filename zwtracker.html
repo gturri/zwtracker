@@ -32,6 +32,8 @@
             input.addEventListener('change', function(){
                 onUpdateEndingDate(idxRows);
             });
+        } else {
+            input.setAttribute("id", "starting_date");
         }
         input.setAttribute("type", "date");
         return encloseInputInCell(input);
@@ -58,8 +60,12 @@
         return cell;
     }
 
+    function getTable(){
+      return document.getElementById("data_table");
+    }
+
     function addLine(){
-      var table = document.getElementById("data_table");
+      var table = getTable();
       var nbRows = table.getElementsByTagName("tr").length;
       var newRow = table.insertRow(-1);
       if (nbRows == 1){ //only the first row has the "starting date" cell: for the other it matches the "ending date" of the previous row
@@ -87,13 +93,94 @@
 
     addLine(); // Start with one line
 
+    function validateData(){
+      var table = getTable();
+      var nbRows = table.getElementsByTagName("tr").length;
+
+      //TODO: make sure that all weights are defined and non negative
+      //TODO: make sure that dates go in increasing order
+      //TODO: call this function
+    }
+
+    function getWeights(){
+      var table = getTable();
+      var nbRows = table.getElementsByTagName("tr").length;
+      var weights = [];
+      for(var idx = 1 /*starts at 1 since rows 0 is the headers*/ ; idx < nbRows ; idx++){
+         weights.push(document.getElementById("weight_" + idx).valueAsNumber);
+      }
+      return weights;
+    }
+
+    function getDates(){
+      var table = getTable();
+      var nbRows = table.getElementsByTagName("tr").length;
+      var dates = [];
+      dates.push(document.getElementById("starting_date").value);
+      for(var idx = 1 /*starts at 1 since rows 0 is the headers*/ ; idx < nbRows ; idx++){
+         dates.push(document.getElementById("ending_date_" + idx).value);
+      }
+      return dates;
+    }
+
+    function getLabelsAndData(){
+      var weights = getWeights();
+      var datesOffsets = datesToDayOffset(getDates());
+      var data = [];
+      var labels = [];
+      for(var idx=0 ; idx < datesOffsets.length - 1 ; idx++ ){
+        var start = datesOffsets[idx];
+        var end = datesOffsets[idx+1];
+        if ( data.length <= start ){
+          data[start] = 0.0;
+          labels.push(start);
+        }
+        if ( start == end ){
+          data[start] += weights[idx];
+        } else {
+          var weightPerTimeUnit = weights[idx] / (end - start);
+          data[start] += weightPerTimeUnit; // `start` is special because it may be already set (if the previous time slot lasted 0 unit of time
+          for (var timeUnit= start+1 ; timeUnit < end ; timeUnit++){
+            data.push(weightPerTimeUnit);
+            labels.push(timeUnit);
+          }
+        }
+      }
+      return [labels, data];
+    }
+
+    function datesToDayOffset(dates){
+      var startingDate = new Date(dates[0]);
+      var offsets = [0];
+      for(var idx=1 ; idx < dates.length ; idx++){
+        var offset = (new Date(dates[idx]) - startingDate) / (24 * 3600 * 1000);
+        // TODO: make sure it's always an int.
+        // (it should work even without since input only accept whole days (without hours)
+        //  but it would still be cleaner)
+        offsets.push(offset);
+      }
+      return offsets;
+    }
+
     document.getElementById('addLine').addEventListener('click', addLine);
     document.getElementById('updateGraph').addEventListener('click', function(){
           var ctx = document.getElementById('graph').getContext('2d');
+          var labelsAndData = getLabelsAndData();
           var graph = new Chart(ctx, {
-
-              })
-          //TODO
+            type: 'line',
+            data: {
+              labels: labelsAndData[0],
+              datasets: [{
+                label: "Poids par jour",
+                steppedLine: true,
+                data: labelsAndData[1],
+              }]
+            },
+            options: {
+              responsive: true, // TODO: understand if this option is actually useful
+              // TODO: find a way to always start y-axis at 0
+            }
+          })
         });
   </script>
 
