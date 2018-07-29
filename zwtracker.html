@@ -35,9 +35,54 @@
         } else {
             input.setAttribute("id", "starting_date");
         }
+        input.addEventListener('change', function(){
+            persistData(input);
+        });
         input.setAttribute("type", "date");
         return encloseInputInCell(input);
    }
+
+    function persistData(input){
+      localStorage.setItem(input.id, input.value);
+      if (localStorage.input_keys == undefined){
+        localStorage.input_keys = "";
+      }
+      if (!localStorage.input_keys.includes(input.id)){
+        localStorage.input_keys +=  "@" + input.id;
+      }
+    }
+
+    function persistNumberOfRows(){
+      localStorage.setItem("number_of_rows", getTable().getElementsByTagName("tr").length);
+    }
+
+    function loadPersistedData(){
+      // if no data is persisted (ie: 1st load) then we want to start with 2 rows:
+      // the 1st for the headers, and one for the first input
+      // Beware: don't inline this variable because persisted data may be changed by the rows restoration
+      var numberOfRows = localStorage.number_of_rows || 2;
+      while (numberOfRows > getTable().getElementsByTagName("tr").length){
+        addLine();
+      }
+
+      if (localStorage.input_keys === undefined){
+        return;
+      }
+      localStorage.input_keys.split('@').forEach(function(inputKey){
+          if ( inputKey != "" ){
+            var input = document.getElementById(inputKey);
+            input.value = localStorage.getItem(inputKey);
+            if ("createEvent" in document) {
+                var evt = document.createEvent("HTMLEvents");
+                evt.initEvent("change", false, true);
+                input.dispatchEvent(evt);
+            }
+            else {
+                input.fireEvent("onchange");
+            }
+          }
+      });
+    }
 
     function createWeightCell(idxRows){
         var input = document.createElement("input");
@@ -45,6 +90,9 @@
         input.setAttribute("placeholder", "1.2kg");
         input.setAttribute("step", "0.1");
         input.setAttribute("id", "weight_" + idxRows);
+        input.addEventListener('change', function(){
+            persistData(input);
+        });
         return encloseInputInCell(input);
     }
 
@@ -81,6 +129,8 @@
       if (nbRows > 1){
           onUpdateEndingDate(nbRows-1);
       }
+
+      persistNumberOfRows();
     }
 
     function onUpdateEndingDate(idxRowUpdated){
@@ -90,8 +140,6 @@
           nextCell.innerHTML = value;
        }
     }
-
-    addLine(); // Start with one line
 
     function validateData(){
       var table = getTable();
@@ -182,6 +230,8 @@
             }
           })
         });
+
+    loadPersistedData();
   </script>
 
 </body>
