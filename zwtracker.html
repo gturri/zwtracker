@@ -226,7 +226,13 @@
             },
             options: {
               responsive: true, // TODO: understand if this option is actually useful
-              // TODO: find a way to always start y-axis at 0
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true
+                  }
+                }]
+              }
             }
           })
         });
