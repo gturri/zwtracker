@@ -13,6 +13,7 @@
   </table>
   <div>
     <button id="addLine">Ajouter une ligne</button>
+    <button id="rmLine">Supprimer une ligne</button>
     <button id="updateGraph">Mettre à jour le graph</button>
   </div>
 
@@ -50,6 +51,11 @@
       if (!localStorage.input_keys.includes(input.id)){
         localStorage.input_keys +=  "@" + input.id;
       }
+    }
+
+    function unpersistInput(input){
+      localStorage.removeItem(input.id);
+      localStorage.input_keys = localStorage.input_keys.replace("@" + input.id, "");
     }
 
     function persistNumberOfRows(){
@@ -133,6 +139,21 @@
       persistNumberOfRows();
     }
 
+    function rmLine(){
+      var table = getTable();
+      var rows = table.getElementsByTagName("tr");
+
+      if (rows.length == 1){ //if there's just the header row left
+        return;
+      }
+
+      Array.from(rows[rows.length-1].getElementsByTagName("input")).forEach(unpersistInput);
+
+      table.deleteRow(-1);
+      persistNumberOfRows();
+
+    }
+
     function onUpdateEndingDate(idxRowUpdated){
        var value = document.getElementById("ending_date_" + idxRowUpdated).value;
        var nextCell = document.getElementById("empty_" + (idxRowUpdated + 1));
@@ -211,6 +232,7 @@
     }
 
     document.getElementById('addLine').addEventListener('click', addLine);
+    document.getElementById('rmLine').addEventListener('click', rmLine);
     document.getElementById('updateGraph').addEventListener('click', function(){
           var ctx = document.getElementById('graph').getContext('2d');
           var labelsAndData = getLabelsAndData();
