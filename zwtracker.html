@@ -222,11 +222,8 @@
       var startingDate = new Date(dates[0]);
       var offsets = [0];
       for(var idx=1 ; idx < dates.length ; idx++){
-        var offset = (new Date(dates[idx]) - startingDate) / (24 * 3600 * 1000);
-        // TODO: make sure it's always an int.
-        // (it should work even without since input only accept whole days (without hours)
-        //  but it would still be cleaner)
-        offsets.push(offset);
+        var offset = (new Date(dates[idx]) - startingDate) / (7 * 24 * 3600 * 1000);
+        offsets.push(parseInt(offset));
       }
       return offsets;
     }
@@ -241,7 +238,7 @@
             data: {
               labels: labelsAndData[0],
               datasets: [{
-                label: "Poids par jour",
+                label: "Poids par semaine (kg)",
                 steppedLine: true,
                 data: labelsAndData[1],
               }]
@@ -251,7 +248,17 @@
               scales: {
                 yAxes: [{
                   ticks: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                  },
+                  scaleLabel: {
+                    display: true,
+                    labelString: "Poid par semaine (kg)"
+                  }
+                }],
+                xAxes: [{
+                  scaleLabel: {
+                    display: true,
+                    labelString: "Nombre de semaines depuis le début"
                   }
                 }]
               }
