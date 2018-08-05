@@ -36,13 +36,13 @@
             input.setAttribute("id", "starting_date");
         }
         input.addEventListener('change', function(){
-            persistData(input);
+            persistInput(input);
         });
         input.setAttribute("type", "date");
         return encloseInputInCell(input);
    }
 
-    function persistData(input){
+    function persistInput(input){
       localStorage.setItem(input.id, input.value);
       if (localStorage.input_keys == undefined){
         localStorage.input_keys = "";
@@ -91,7 +91,7 @@
         input.setAttribute("step", "0.1");
         input.setAttribute("id", "weight_" + idxRows);
         input.addEventListener('change', function(){
-            persistData(input);
+            persistInput(input);
         });
         return encloseInputInCell(input);
     }
