@@ -54,11 +54,11 @@
    }
 
    function getDataName(){
-     var name = document.getElementById("name_data_1").value;
-     if ( name === "" ){
-       return "ordures ménagères";
+     var input = document.getElementById("name_data_1");
+     if ( input.value === "" ){
+       return input.placeholder;
      }
-     return name;
+     return input.value;
    }
 
     function persistInput(input){
