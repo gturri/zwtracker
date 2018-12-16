@@ -8,15 +8,17 @@
   <div style="width:75%">
     <canvas id="graph"></canvas>
   </div>
-  <div id="data_1">
-    Type : <input type="text" placeholder="ordures ménagères" id="name_data_1" />
-    <table id="data_table">
-      <tr><th>Début période</th><th>Fin période</th><th>Masse</th></tr>
-    </table>
-    <div>
-      <button id="addLine">Ajouter une ligne</button>
-      <button id="rmLine">Supprimer une ligne</button>
-      <button id="updateGraph">Mettre à jour le graph</button>
+  <div id="outter_pane">
+    <div id="pane_1">
+      Type : <input type="text" placeholder="ordures ménagères" id="name_data_1" />
+      <table id="data_table">
+        <tr><th>Début période</th><th>Fin période</th><th>Masse</th></tr>
+      </table>
+      <div>
+        <button id="addLine">Ajouter une ligne</button>
+        <button id="rmLine">Supprimer une ligne</button>
+        <button id="updateGraph">Mettre à jour le graph</button>
+      </div>
     </div>
   </div>
 
@@ -27,6 +29,30 @@
     // * can remove an array
     // * persist this data
     // * load this persisted data
+
+    function addPane(){
+      var outterPane = document.getElementById("outter_pane");
+      var numberOfPanes = outterPane.children.length;
+
+      var newPane = document.createElement("div");
+      newPane.setAttribute("id", "pane_" + numberOfPanes);
+      outterPane.appendChild(newPane);
+
+      newPane.appendChild(document.createTextNode("Type : "));
+      var inputName = document.createElement("input");
+      inputName.setAttribute("type", "text");
+      inputName.setAttribute("placeholder", "ordures ménagères " + numberOfPanes);
+      inputName.setAttribute("id", "name_data_" + numberOfPanes);
+      newPane.appendChild(inputName);
+
+      var dataTable = document.createElement("table");
+      dataTable.setAttribute("id", "data_table_" + numberOfPanes);
+      newPane.appendChild(dataTable);
+      var headers = dataTable.insertRow(-1);
+      headers.appendChild(document.createElement("th").appendChild(document.createTextNode("Début période")));
+      headers.appendChild(document.createElement("th").appendChild(document.createTextNode("Fin période")));
+      headers.appendChild(document.createElement("th").appendChild(document.createTextNode("Masse")));
+    }
 
     function createCellWithEndingDate(idxRows){
         return createCellWithInputDate(true, idxRows);
